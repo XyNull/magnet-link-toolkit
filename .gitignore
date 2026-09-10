@@ -1,0 +1,16 @@
+# 系统 / 编辑器
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# 临时与调试文件
+*.tmp
+*.log
+*~
+_t.js
+_q*.js
+_d.js
+_test*.js
+
