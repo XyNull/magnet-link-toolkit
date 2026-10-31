@@ -957,31 +957,73 @@
         return '';
     }
 
-    function exhMakeSmallButton(title, onClick) {
+    // 推送按钮：带文字的胶囊样式，蓝底白字，暗色页面里足够醒目
+    function exhMakeButton(label, tip, onClick) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'exh-qb-btn';
-        btn.title = title;
-        btn.innerHTML = ICONS.qb;
-        btn.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin:0 2px;padding:0;border:none;border-radius:3px;background:rgba(47,103,175,0.12);cursor:pointer;vertical-align:middle;opacity:.9;transition:background .15s ease;';
-        btn.addEventListener('mouseenter', () => { btn.style.background = 'rgba(47,103,175,0.28)'; });
-        btn.addEventListener('mouseleave', () => { btn.style.background = 'rgba(47,103,175,0.12)'; });
+        btn.title = tip || label;
+        btn.innerHTML = ICONS.qb + `<span>${label}</span>`;
+        btn.style.cssText = [
+            'display:inline-flex', 'align-items:center', 'gap:5px',
+            'height:24px', 'padding:0 10px 0 6px', 'margin:6px 6px 0 0',
+            'border:1px solid #4b8ede', 'border-radius:12px',
+            'background:linear-gradient(#3b7bd2,#2f67af)', 'color:#fff',
+            'font:600 12px/1 "Segoe UI",system-ui,-apple-system,sans-serif',
+            'cursor:pointer', 'white-space:nowrap', 'vertical-align:middle',
+            'box-shadow:0 1px 3px rgba(0,0,0,.35)',
+            'transition:filter .15s ease,transform .1s ease'
+        ].join(';');
+        btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(1.18)'; });
+        btn.addEventListener('mouseleave', () => { btn.style.filter = ''; });
+        btn.addEventListener('mousedown', () => { btn.style.transform = 'scale(.97)'; });
+        btn.addEventListener('mouseup', () => { btn.style.transform = ''; });
         btn.addEventListener('click', async (ev) => {
             ev.preventDefault();
             ev.stopPropagation();
             if (btn.dataset.busy === '1') return;
             btn.dataset.busy = '1';
-            btn.style.opacity = '.45';
+            const original = btn.innerHTML;
+            btn.innerHTML = '推送中…';
+            btn.style.opacity = '.75';
             try {
                 await onClick(btn);
             } catch (e) {
                 showNotification('操作失败', e.message);
             } finally {
                 btn.dataset.busy = '0';
-                btn.style.opacity = '.9';
+                btn.style.opacity = '';
+                btn.innerHTML = original;
             }
         });
         return btn;
+    }
+
+    // 优先放到条目行的标题格（.gl3c / .glname）里，成为该条目的组成部分；
+    // 拿不到表格结构时退回锚点后面。
+    // 按钮统一包一层 block 容器，保证独占一行，不挤压原有的链接文字。
+    function exhPlaceButton(anchorEl, btn) {
+        const wrap = document.createElement('div');
+        wrap.className = 'exh-qb-wrap';
+        wrap.style.cssText = 'display:block;margin:0;padding:0;line-height:normal;';
+        wrap.appendChild(btn);
+
+        const row = anchorEl.closest('tr');
+        if (row) {
+            const cell = row.querySelector('.gl3c') || row.querySelector('.glname');
+            if (cell) {
+                const link = cell.querySelector('a');
+                if (link && link.parentNode) link.parentNode.insertBefore(wrap, link.nextSibling);
+                else cell.appendChild(wrap);
+                return;
+            }
+            const cells = row.querySelectorAll('td');
+            if (cells.length) {
+                cells[cells.length - 1].appendChild(wrap);
+                return;
+            }
+        }
+        if (anchorEl.parentNode) anchorEl.parentNode.insertBefore(wrap, anchorEl.nextSibling);
     }
 
     function exhHandleTorrentLinks() {
@@ -993,21 +1035,21 @@
             a.dataset.exhQbReady = '1';
             const title = (a.textContent || '').trim();
 
-            const btn = exhMakeSmallButton(
-                '推送到 qBittorrent' + (title ? `：${title}` : ''),
+            const btn = exhMakeButton(
+                '推送 qB',
+                '把这个种子推送到 qBittorrent' + (title ? `：${title}` : ''),
                 async () => {
                     const noticeId = 'exh-qb-' + Math.random().toString(36).slice(2);
                     showNotification('qBittorrent', '正在推送种子链接…', noticeId);
                     try {
                         await exhPushTorrents([{ url: a.href, name: title }]);
                         showNotification('已推送到 qBittorrent', (title || '种子链接已提交') + '（种子由 qB 自行下载）', noticeId);
-                        showButtonFeedback(btn);
                     } catch (e) {
                         showNotification('推送失败', e.message, noticeId);
                     }
                 }
             );
-            if (a.parentNode) a.parentNode.insertBefore(btn, a.nextSibling);
+            exhPlaceButton(a, btn);
         });
     }
 
@@ -1019,8 +1061,9 @@
             a.dataset.exhQbGallery = '1';
             const title = exhFindGalleryTitle(a);
 
-            const btn = exhMakeSmallButton(
-                '抓取该画廊的种子并推送 qB' + (title ? `：${title}` : ''),
+            const btn = exhMakeButton(
+                '推送 qB',
+                '抓取该画廊的种子并推送到 qBittorrent' + (title ? `：${title}` : ''),
                 async () => {
                     const noticeId = 'exh-gal-' + Math.random().toString(36).slice(2);
                     showNotification('ExHentai', '正在读取种子列表…', noticeId);
@@ -1052,7 +1095,7 @@
                     }
                 }
             );
-            if (a.parentNode) a.parentNode.insertBefore(btn, a.nextSibling);
+            exhPlaceButton(a, btn);
         });
     }
 
