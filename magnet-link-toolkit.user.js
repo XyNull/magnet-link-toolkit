@@ -834,7 +834,7 @@
         const list = (Array.isArray(magnets) ? magnets : [magnets])
             .map(m => (typeof m === 'string' ? m.trim() : ''))
             .filter(Boolean);
-        if (!list.length) throw new Error('没有可推送的磁力链');
+        if (!list.length) throw new Error('没有可推送的链接');
 
         const cfg = qbGetConfig();
         if (!cfg.url) throw new Error('请先在设置面板中配置 qBittorrent 地址');
@@ -846,7 +846,7 @@
         if (cfg.savePath) params.set('savepath', cfg.savePath);
         if (cfg.category) params.set('category', cfg.category);
         if (cfg.tags) params.set('tags', cfg.tags);
-        if (cfg.paused) params.set('paused', 'true');
+        if (cfg.paused) { params.set('paused', 'true'); params.set('stopped', 'true'); }
 
         const headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -864,7 +864,7 @@
         if (res.status === 200) return list.length;
         if (res.status === 401) throw new Error('未授权（401）：请在设置中填写正确的用户名与密码');
         if (res.status === 403) throw new Error('被拒绝（403）：请检查用户名/密码，或该 IP 已被 qB 临时封禁');
-        if (res.status === 415) throw new Error('磁力链无效（415）：qBittorrent 拒绝了该链接');
+        if (res.status === 415) throw new Error('链接无效（415）：qBittorrent 拒绝了该链接');
         if (res.status === 404) throw new Error('接口不存在（404）：请确认地址指向 qBittorrent WebUI 根路径');
         throw new Error(`推送失败（HTTP ${res.status}）`);
     }
@@ -872,8 +872,9 @@
     // ============ ExHentai / E-Hentai：.torrent 种子推送到 qBittorrent ============
     // 站点不提供磁力链，只提供种子文件：
     //   https://exhentai.org/torrent/{gid}/{hash}/{infohash}.torrent
-    // qBittorrent 若在局域网内未必能直连站点，因此统一走
-    // 「浏览器侧取到 .torrent 字节 → multipart 上传给 qB」的链路。
+    // 推送方式与磁力链一致：把该 URL 放进 qB 的 urls 参数，由 qB 自行下载种子。
+    // 前提是 qB 所在机器能访问站点（在 qB 里配好代理即可）。
+    // 唯一需要在浏览器侧做的，是从 gallerytorrents.php 页面里把种子链接解析出来。
     const EXH_LINK_RE = /\/torrent\/[^?#\s"'<>]+\.torrent(?:[?#]|$)/i;
     const EXH_HOST_RE = /(^|\.)(exhentai\.org|e-hentai\.org)$/i;
 
@@ -883,27 +884,6 @@
 
     function exhSleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    function exhFetchBinary(url, timeout = 25000) {
-        return new Promise((resolve, reject) => {
-            try {
-                GM_xmlhttpRequest({
-                    method: 'GET',
-                    url,
-                    responseType: 'arraybuffer',
-                    timeout,
-                    anonymous: false,
-                    onload: (res) => {
-                        if (res.status >= 200 && res.status < 300 && res.response) resolve(res.response);
-                        else reject(new Error(`获取 torrent 失败：HTTP ${res.status}`));
-                    },
-                    onerror: () => reject(new Error('获取 torrent 失败：网络错误（站点可能需要代理）')),
-                    ontimeout: () => reject(new Error('获取 torrent 超时')),
-                    onabort: () => reject(new Error('获取 torrent 被中止'))
-                });
-            } catch (e) { reject(e); }
-        });
     }
 
     function exhFetchText(url, timeout = 25000) {
@@ -956,105 +936,13 @@
         return list;
     }
 
-    // 手工构造 multipart 作为兜底，规避个别脚本管理器对 FormData 透传异常
-    function exhBuildMultipart(fields, fileName, fileBuffer) {
-        const boundary = '----qBExh' + Date.now().toString(16) + Math.random().toString(16).slice(2, 10);
-        const encoder = new TextEncoder();
-        const chunks = [];
-        Object.keys(fields).forEach(key => {
-            const value = fields[key];
-            if (value === undefined || value === null || value === '') return;
-            chunks.push(encoder.encode(
-                `--${boundary}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${value}\r\n`
-            ));
-        });
-        chunks.push(encoder.encode(
-            `--${boundary}\r\nContent-Disposition: form-data; name="torrents"; filename="${fileName}"\r\n` +
-            `Content-Type: application/x-bittorrent\r\n\r\n`
-        ));
-        chunks.push(new Uint8Array(fileBuffer));
-        chunks.push(encoder.encode(`\r\n--${boundary}--\r\n`));
-
-        const total = chunks.reduce((sum, c) => sum + c.length, 0);
-        const merged = new Uint8Array(total);
-        let offset = 0;
-        for (const c of chunks) { merged.set(c, offset); offset += c.length; }
-
-        return {
-            body: merged,
-            contentType: `multipart/form-data; boundary=${boundary}`
-        };
-    }
-
-    async function qbAddTorrentFiles(items) {
+    // 直接把 .torrent 的 HTTP 链接交给 qB 的 urls 参数，由 qB 自己去下载种子
+    // 前提：qB 所在机器能访问站点（在 qB 里配好代理即可）
+    async function exhPushTorrents(items) {
         const list = (Array.isArray(items) ? items : [items]).filter(x => x && x.url);
-        if (!list.length) throw new Error('没有可推送的 torrent');
-
-        const cfg = qbGetConfig();
-        if (!cfg.url) throw new Error('请先在设置面板中配置 qBittorrent 地址');
-
-        const sid = await qbLogin(cfg);
-        const result = { ok: 0, failed: [] };
-
-        for (const item of list) {
-            const label = item.name || 'torrent';
-            try {
-                const buffer = await exhFetchBinary(item.url);
-
-                const tail = String(item.url).split('/').pop() || 'upload.torrent';
-                const safeName = tail.replace(/[^A-Za-z0-9._-]/g, '') || 'upload';
-                const fileName = /\.torrent$/i.test(safeName) ? safeName : safeName + '.torrent';
-
-                const fields = { savepath: cfg.savePath, category: cfg.category, tags: cfg.tags };
-                if (cfg.paused) { fields.paused = 'true'; fields.stopped = 'true'; }
-
-                const headers = { 'Referer': cfg.url + '/' };
-                if (sid) headers['Cookie'] = 'SID=' + sid;
-
-                const form = new FormData();
-                form.append('torrents', new Blob([buffer], { type: 'application/x-bittorrent' }), fileName);
-                Object.keys(fields).forEach(k => {
-                    const v = fields[k];
-                    if (v !== undefined && v !== null && v !== '') form.append(k, v);
-                });
-
-                let res = await qbRequest({
-                    url: cfg.url + '/api/v2/torrents/add',
-                    method: 'POST',
-                    data: form,
-                    headers,
-                    timeout: 30000
-                });
-
-                // 兜底：FormData 未被正确处理时改用手工 multipart 重试一次
-                if (res.status === 400 || res.status === 415) {
-                    const mp = exhBuildMultipart(fields, fileName, buffer);
-                    res = await qbRequest({
-                        url: cfg.url + '/api/v2/torrents/add',
-                        method: 'POST',
-                        data: new Blob([mp.body], { type: mp.contentType }),
-                        headers: Object.assign({}, headers, { 'Content-Type': mp.contentType }),
-                        timeout: 30000
-                    });
-                }
-
-                if (res.status === 200 || res.status === 202) {
-                    result.ok++;
-                } else if (res.status === 401) {
-                    result.failed.push(`${label}：未授权 401（请检查用户名与密码）`);
-                } else if (res.status === 403) {
-                    result.failed.push(`${label}：被拒绝 403（IP 可能被临时封禁）`);
-                } else if (res.status === 415) {
-                    result.failed.push(`${label}：种子被拒绝 415`);
-                } else {
-                    result.failed.push(`${label}：HTTP ${res.status}`);
-                }
-            } catch (e) {
-                result.failed.push(`${label}：${e.message}`);
-            }
-            if (list.length > 1) await exhSleep(150);
-        }
-        return result;
+        if (!list.length) throw new Error('没有可推送的种子');
+        const count = await qbAddTorrents(list.map(x => x.url));
+        return { ok: count, total: list.length };
     }
 
     // 从条目所在行取画廊标题，仅用于提示文案
@@ -1109,13 +997,13 @@
                 '推送到 qBittorrent' + (title ? `：${title}` : ''),
                 async () => {
                     const noticeId = 'exh-qb-' + Math.random().toString(36).slice(2);
-                    showNotification('qBittorrent', '正在获取种子并推送…', noticeId);
-                    const r = await qbAddTorrentFiles([{ url: a.href, name: title }]);
-                    if (r.ok) {
-                        showNotification('已推送到 qBittorrent', title || '种子已提交', noticeId);
+                    showNotification('qBittorrent', '正在推送种子链接…', noticeId);
+                    try {
+                        await exhPushTorrents([{ url: a.href, name: title }]);
+                        showNotification('已推送到 qBittorrent', (title || '种子链接已提交') + '（种子由 qB 自行下载）', noticeId);
                         showButtonFeedback(btn);
-                    } else {
-                        showNotification('推送失败', r.failed.join('；'), noticeId);
+                    } catch (e) {
+                        showNotification('推送失败', e.message, noticeId);
                     }
                 }
             );
@@ -1155,15 +1043,13 @@
                         return;
                     }
 
-                    showNotification('qBittorrent', `正在推送 ${list.length} 个种子…`, noticeId);
-                    const r = await qbAddTorrentFiles(list);
-                    showNotification(
-                        r.ok ? '已推送到 qBittorrent' : '推送失败',
-                        r.ok
-                            ? `成功 ${r.ok}/${list.length}` + (r.failed.length ? `，失败 ${r.failed.length}` : '')
-                            : r.failed.join('；'),
-                        noticeId
-                    );
+                    showNotification('qBittorrent', `正在推送 ${list.length} 个种子链接…`, noticeId);
+                    try {
+                        await exhPushTorrents(list);
+                        showNotification('已推送到 qBittorrent', `${title || ''} ${list.length} 个种子链接已提交`.trim(), noticeId);
+                    } catch (e) {
+                        showNotification('推送失败', e.message, noticeId);
+                    }
                 }
             );
             if (a.parentNode) a.parentNode.insertBefore(btn, a.nextSibling);
@@ -1212,14 +1098,13 @@
         if (!confirm(`共 ${list.length} 个 torrent，全部推送到 qBittorrent？`)) return;
 
         const noticeId = 'exh-push-' + Date.now();
-        showNotification('qBittorrent', `正在推送 ${list.length} 个种子…`, noticeId);
-        const r = await qbAddTorrentFiles(list);
-        showNotification(
-            r.ok ? '批量推送完成' : '批量推送失败',
-            `成功 ${r.ok}/${list.length}` +
-            (r.failed.length ? `；失败 ${r.failed.length} 个：${r.failed.slice(0, 3).join('；')}` : ''),
-            noticeId
-        );
+        showNotification('qBittorrent', `正在推送 ${list.length} 个种子链接…`, noticeId);
+        try {
+            await exhPushTorrents(list);
+            showNotification('批量推送完成', `${list.length} 个种子链接已提交给 qB（种子由 qB 自行下载）`, noticeId);
+        } catch (e) {
+            showNotification('批量推送失败', e.message, noticeId);
+        }
     }
 
     function handleExHentaiSite() {
