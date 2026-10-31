@@ -2,8 +2,8 @@
 // @name         磁力链增强工具箱（复制/队列/115离线/qB推送）
 // @name:zh-CN   磁力链增强工具箱（复制/队列/115离线/qB推送）
 // @author       wangzijian0@vip.qq.com (原版作者), XyNull (修改版)
-// @description  支持BT4G/BTDigg/BTSOW/Nyaa/DMHY(動漫花園)/GY(观影)/SeedHub/LongWangBT(梦幻天堂·龙网)/YuHuaGe(雨花阁)/SOBT/CLB(磁力宝)/BTMulu(BT目录)/ØMagnet(无极磁链)/磁力帝等磁力搜索网站，可一键复制磁力链和推送到115网盘进行离线下载，支持打开磁力链，支持批量操作；支持一键复制当前页全部磁力链、累积队列复制（多次复制后一次粘贴全部）、通过 WebUI API 将单条或队列批量推送到 qBittorrent；提供“菜单”和左下角悬浮按钮（设置/复制全部/队列/qB推送）（需已登录115会员账号才能推送离线任务成功，qBittorrent 需在设置中配置 WebUI 地址）
-// @version      1.2.2.20260910
+// @description  支持BT4G/BTDigg/BTSOW/Nyaa/DMHY(動漫花園)/GY(观影)/SeedHub/LongWangBT(梦幻天堂·龙网)/YuHuaGe(雨花阁)/SOBT/CLB(磁力宝)/BTMulu(BT目录)/ØMagnet(无极磁链)/磁力帝等磁力搜索网站，可一键复制磁力链和推送到115网盘进行离线下载，支持打开磁力链，支持批量操作；支持一键复制当前页全部磁力链、累积队列复制（多次复制后一次粘贴全部）、通过 WebUI API 将单条或队列批量推送到 qBittorrent；另支持 ExHentai/E-Hentai 的 .torrent 种子一键推送到 qBittorrent（含画廊列表页 torrent 异步抓取、整页批量推送）；提供“菜单”和左下角悬浮按钮（设置/复制全部/队列/qB推送）（需已登录115会员账号才能推送离线任务成功，qBittorrent 需在设置中配置 WebUI 地址）
+// @version      1.3.0.20261031
 // @icon         data:image/gif;base64,R0lGODlhgAGAAZECAPr7/ERNVv///wAAACH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ1IDc5LjE2MzQ5OSwgMjAxOC8wOC8xMy0xNjo0MDoyMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo5OTk5ODkxZS0wMWE2LTRlMTItYWM1Mi00YTIzMzI1MTViYjQiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MkU2QTk5NkYxM0UzMTFFQzg5RkRCRTMwRTcyQUZCRjIiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MkU2QTk5NkUxM0UzMTFFQzg5RkRCRTMwRTcyQUZCRjIiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDoxOTQyMDFlMi00OGRjLTQ3OTgtOTFlNi05ZjkyNzhjNTJlZTUiIHN0UmVmOmRvY3VtZW50SUQ9ImFkb2JlOmRvY2lkOnBob3Rvc2hvcDplMjk3YTUwZC00MTM4LWVmNDYtYTY3Ni1kZTkzNDU1ZjNmOTkiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRm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
 // @include      *://*bt4gprx.com/*
 // @include      *://*btdig.com/*
@@ -25,6 +25,8 @@
 // @include      *://*wuji.*/*
 // @include      *://*1122*.*/*
 // @include      *://*cld130.*/*
+// @include      *://exhentai.org/*
+// @include      *://e-hentai.org/*
 // @grant        GM_setClipboard
 // @grant        GM_xmlhttpRequest
 // @grant        GM_getValue
@@ -32,6 +34,8 @@
 // @grant        GM_registerMenuCommand
 // @connect      115.com
 // @connect      login.115.com
+// @connect      exhentai.org
+// @connect      e-hentai.org
 // @connect      *
 // @run-at       document-end
 // @namespace    https://github.com/XyNull
@@ -95,7 +99,8 @@
             btmulu: GM_getValue('site_btmulu', true),
             cili_family: GM_getValue('site_cili_family', true),
             gying_family: GM_getValue('site_gying_family', true),
-            cilidi: GM_getValue('site_cilidi', true)
+            cilidi: GM_getValue('site_cilidi', true),
+            exhentai: GM_getValue('site_exhentai', true)
         },
         enableFloatingSettingsBtn: GM_getValue('enableFloatingSettingsBtn', true),
         enableFloatingDrag: GM_getValue('enableFloatingDrag', true)
@@ -211,6 +216,12 @@
                 { url: 'https://cldcld.cyou' },
                 { url: 'https://cldcld.top' },
                 { url: 'https://cldcld.com' }
+            ]
+        },
+        exhentai: {
+            sites: [
+                { url: 'https://exhentai.org' },
+                { url: 'https://e-hentai.org', note: '表站，结构相同' }
             ]
         }
     };
@@ -388,6 +399,10 @@
                 handler: () => pushMagnetQueueToQB()
             },
             {
+                name: "推送本页全部 torrent 到 qBittorrent（ExHentai）",
+                handler: () => exhPushAllTorrentsOnPage()
+            },
+            {
                 name: "测试 qBittorrent 连接",
                 handler: () => qbTestConnection()
             }
@@ -439,6 +454,7 @@
         };
 
         const patternHandlers = [
+            { key: 'exhentai', pattern: /(^|\.)(exhentai|e-hentai)\.org$/, handler: handleExHentaiSite },
             { key: 'sobt', pattern: /sobt[^.]+\..+/, handler: handleSOBTSite },
             { key: 'clb', pattern: /clb[^.]+\..+/, handler: handleSOBTSite },
             { key: 'btsow', pattern: /(\.|^)btsow\./, handler: handleBtsowSite },
@@ -851,6 +867,364 @@
         if (res.status === 415) throw new Error('磁力链无效（415）：qBittorrent 拒绝了该链接');
         if (res.status === 404) throw new Error('接口不存在（404）：请确认地址指向 qBittorrent WebUI 根路径');
         throw new Error(`推送失败（HTTP ${res.status}）`);
+    }
+
+    // ============ ExHentai / E-Hentai：.torrent 种子推送到 qBittorrent ============
+    // 站点不提供磁力链，只提供种子文件：
+    //   https://exhentai.org/torrent/{gid}/{hash}/{infohash}.torrent
+    // qBittorrent 若在局域网内未必能直连站点，因此统一走
+    // 「浏览器侧取到 .torrent 字节 → multipart 上传给 qB」的链路。
+    const EXH_LINK_RE = /\/torrent\/[^?#\s"'<>]+\.torrent(?:[?#]|$)/i;
+    const EXH_HOST_RE = /(^|\.)(exhentai\.org|e-hentai\.org)$/i;
+
+    function exhIsTorrentLink(href) {
+        return !!href && EXH_LINK_RE.test(String(href));
+    }
+
+    function exhSleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function exhFetchBinary(url, timeout = 25000) {
+        return new Promise((resolve, reject) => {
+            try {
+                GM_xmlhttpRequest({
+                    method: 'GET',
+                    url,
+                    responseType: 'arraybuffer',
+                    timeout,
+                    anonymous: false,
+                    onload: (res) => {
+                        if (res.status >= 200 && res.status < 300 && res.response) resolve(res.response);
+                        else reject(new Error(`获取 torrent 失败：HTTP ${res.status}`));
+                    },
+                    onerror: () => reject(new Error('获取 torrent 失败：网络错误（站点可能需要代理）')),
+                    ontimeout: () => reject(new Error('获取 torrent 超时')),
+                    onabort: () => reject(new Error('获取 torrent 被中止'))
+                });
+            } catch (e) { reject(e); }
+        });
+    }
+
+    function exhFetchText(url, timeout = 25000) {
+        return new Promise((resolve, reject) => {
+            try {
+                GM_xmlhttpRequest({
+                    method: 'GET',
+                    url,
+                    timeout,
+                    anonymous: false,
+                    onload: (res) => {
+                        if (res.status >= 200 && res.status < 300) resolve(res.responseText || '');
+                        else reject(new Error(`读取页面失败：HTTP ${res.status}`));
+                    },
+                    onerror: () => reject(new Error('读取页面失败：网络错误')),
+                    ontimeout: () => reject(new Error('读取页面超时'))
+                });
+            } catch (e) { reject(e); }
+        });
+    }
+
+    // 从 gallerytorrents.php 等页面的 HTML 中提取 .torrent 链接
+    function exhParseTorrents(html) {
+        const list = [];
+        try {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            doc.querySelectorAll('a[href]').forEach(a => {
+                const raw = a.getAttribute('href') || '';
+                if (!raw) return;
+                let abs;
+                try { abs = new URL(raw, location.href).href; } catch (_) { return; }
+                if (!exhIsTorrentLink(abs)) return;
+                if (list.some(x => x.url === abs)) return;
+                list.push({ url: abs, name: (a.textContent || '').trim() });
+            });
+        } catch (e) {
+            console.warn('[ExHentai] 解析 torrent 链接失败', e);
+        }
+        return list;
+    }
+
+    function exhCollectPageTorrents() {
+        const list = [];
+        document.querySelectorAll('a[href]').forEach(a => {
+            const href = a.href || '';
+            if (!exhIsTorrentLink(href)) return;
+            if (list.some(x => x.url === href)) return;
+            list.push({ url: href, name: (a.textContent || '').trim() });
+        });
+        return list;
+    }
+
+    // 手工构造 multipart 作为兜底，规避个别脚本管理器对 FormData 透传异常
+    function exhBuildMultipart(fields, fileName, fileBuffer) {
+        const boundary = '----qBExh' + Date.now().toString(16) + Math.random().toString(16).slice(2, 10);
+        const encoder = new TextEncoder();
+        const chunks = [];
+        Object.keys(fields).forEach(key => {
+            const value = fields[key];
+            if (value === undefined || value === null || value === '') return;
+            chunks.push(encoder.encode(
+                `--${boundary}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${value}\r\n`
+            ));
+        });
+        chunks.push(encoder.encode(
+            `--${boundary}\r\nContent-Disposition: form-data; name="torrents"; filename="${fileName}"\r\n` +
+            `Content-Type: application/x-bittorrent\r\n\r\n`
+        ));
+        chunks.push(new Uint8Array(fileBuffer));
+        chunks.push(encoder.encode(`\r\n--${boundary}--\r\n`));
+
+        const total = chunks.reduce((sum, c) => sum + c.length, 0);
+        const merged = new Uint8Array(total);
+        let offset = 0;
+        for (const c of chunks) { merged.set(c, offset); offset += c.length; }
+
+        return {
+            body: merged,
+            contentType: `multipart/form-data; boundary=${boundary}`
+        };
+    }
+
+    async function qbAddTorrentFiles(items) {
+        const list = (Array.isArray(items) ? items : [items]).filter(x => x && x.url);
+        if (!list.length) throw new Error('没有可推送的 torrent');
+
+        const cfg = qbGetConfig();
+        if (!cfg.url) throw new Error('请先在设置面板中配置 qBittorrent 地址');
+
+        const sid = await qbLogin(cfg);
+        const result = { ok: 0, failed: [] };
+
+        for (const item of list) {
+            const label = item.name || 'torrent';
+            try {
+                const buffer = await exhFetchBinary(item.url);
+
+                const tail = String(item.url).split('/').pop() || 'upload.torrent';
+                const safeName = tail.replace(/[^A-Za-z0-9._-]/g, '') || 'upload';
+                const fileName = /\.torrent$/i.test(safeName) ? safeName : safeName + '.torrent';
+
+                const fields = { savepath: cfg.savePath, category: cfg.category, tags: cfg.tags };
+                if (cfg.paused) { fields.paused = 'true'; fields.stopped = 'true'; }
+
+                const headers = { 'Referer': cfg.url + '/' };
+                if (sid) headers['Cookie'] = 'SID=' + sid;
+
+                const form = new FormData();
+                form.append('torrents', new Blob([buffer], { type: 'application/x-bittorrent' }), fileName);
+                Object.keys(fields).forEach(k => {
+                    const v = fields[k];
+                    if (v !== undefined && v !== null && v !== '') form.append(k, v);
+                });
+
+                let res = await qbRequest({
+                    url: cfg.url + '/api/v2/torrents/add',
+                    method: 'POST',
+                    data: form,
+                    headers,
+                    timeout: 30000
+                });
+
+                // 兜底：FormData 未被正确处理时改用手工 multipart 重试一次
+                if (res.status === 400 || res.status === 415) {
+                    const mp = exhBuildMultipart(fields, fileName, buffer);
+                    res = await qbRequest({
+                        url: cfg.url + '/api/v2/torrents/add',
+                        method: 'POST',
+                        data: new Blob([mp.body], { type: mp.contentType }),
+                        headers: Object.assign({}, headers, { 'Content-Type': mp.contentType }),
+                        timeout: 30000
+                    });
+                }
+
+                if (res.status === 200 || res.status === 202) {
+                    result.ok++;
+                } else if (res.status === 401) {
+                    result.failed.push(`${label}：未授权 401（请检查用户名与密码）`);
+                } else if (res.status === 403) {
+                    result.failed.push(`${label}：被拒绝 403（IP 可能被临时封禁）`);
+                } else if (res.status === 415) {
+                    result.failed.push(`${label}：种子被拒绝 415`);
+                } else {
+                    result.failed.push(`${label}：HTTP ${res.status}`);
+                }
+            } catch (e) {
+                result.failed.push(`${label}：${e.message}`);
+            }
+            if (list.length > 1) await exhSleep(150);
+        }
+        return result;
+    }
+
+    // 从条目所在行取画廊标题，仅用于提示文案
+    function exhFindGalleryTitle(el) {
+        try {
+            const row = el.closest('tr');
+            if (row) {
+                const t = row.querySelector('.glink') || row.querySelector('a[href*="/g/"]');
+                if (t && t.textContent.trim()) return t.textContent.trim();
+            }
+        } catch (_) {}
+        return '';
+    }
+
+    function exhMakeSmallButton(title, onClick) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'exh-qb-btn';
+        btn.title = title;
+        btn.innerHTML = ICONS.qb;
+        btn.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin:0 2px;padding:0;border:none;border-radius:3px;background:rgba(47,103,175,0.12);cursor:pointer;vertical-align:middle;opacity:.9;transition:background .15s ease;';
+        btn.addEventListener('mouseenter', () => { btn.style.background = 'rgba(47,103,175,0.28)'; });
+        btn.addEventListener('mouseleave', () => { btn.style.background = 'rgba(47,103,175,0.12)'; });
+        btn.addEventListener('click', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (btn.dataset.busy === '1') return;
+            btn.dataset.busy = '1';
+            btn.style.opacity = '.45';
+            try {
+                await onClick(btn);
+            } catch (e) {
+                showNotification('操作失败', e.message);
+            } finally {
+                btn.dataset.busy = '0';
+                btn.style.opacity = '.9';
+            }
+        });
+        return btn;
+    }
+
+    function exhHandleTorrentLinks() {
+        const anchors = Array.prototype.slice.call(document.querySelectorAll('a[href]'))
+            .filter(a => exhIsTorrentLink(a.href || ''));
+
+        anchors.forEach(a => {
+            if (a.dataset.exhQbReady === '1') return;
+            a.dataset.exhQbReady = '1';
+            const title = (a.textContent || '').trim();
+
+            const btn = exhMakeSmallButton(
+                '推送到 qBittorrent' + (title ? `：${title}` : ''),
+                async () => {
+                    const noticeId = 'exh-qb-' + Math.random().toString(36).slice(2);
+                    showNotification('qBittorrent', '正在获取种子并推送…', noticeId);
+                    const r = await qbAddTorrentFiles([{ url: a.href, name: title }]);
+                    if (r.ok) {
+                        showNotification('已推送到 qBittorrent', title || '种子已提交', noticeId);
+                        showButtonFeedback(btn);
+                    } else {
+                        showNotification('推送失败', r.failed.join('；'), noticeId);
+                    }
+                }
+            );
+            if (a.parentNode) a.parentNode.insertBefore(btn, a.nextSibling);
+        });
+    }
+
+    function exhHandleGalleryLinks() {
+        const links = Array.prototype.slice.call(document.querySelectorAll('a[href*="gallerytorrents.php"]'));
+
+        links.forEach(a => {
+            if (a.dataset.exhQbGallery === '1') return;
+            a.dataset.exhQbGallery = '1';
+            const title = exhFindGalleryTitle(a);
+
+            const btn = exhMakeSmallButton(
+                '抓取该画廊的种子并推送 qB' + (title ? `：${title}` : ''),
+                async () => {
+                    const noticeId = 'exh-gal-' + Math.random().toString(36).slice(2);
+                    showNotification('ExHentai', '正在读取种子列表…', noticeId);
+
+                    let list = [];
+                    try {
+                        const html = await exhFetchText(a.href);
+                        list = exhParseTorrents(html);
+                    } catch (e) {
+                        showNotification('抓取失败', e.message, noticeId);
+                        return;
+                    }
+
+                    if (!list.length) {
+                        showNotification('没有可推送的种子', `${title || '该画廊'} 暂无 torrent`, noticeId);
+                        return;
+                    }
+
+                    if (list.length > 1 && !confirm(`「${title || '该画廊'}」有 ${list.length} 个 torrent，全部推送到 qBittorrent？`)) {
+                        return;
+                    }
+
+                    showNotification('qBittorrent', `正在推送 ${list.length} 个种子…`, noticeId);
+                    const r = await qbAddTorrentFiles(list);
+                    showNotification(
+                        r.ok ? '已推送到 qBittorrent' : '推送失败',
+                        r.ok
+                            ? `成功 ${r.ok}/${list.length}` + (r.failed.length ? `，失败 ${r.failed.length}` : '')
+                            : r.failed.join('；'),
+                        noticeId
+                    );
+                }
+            );
+            if (a.parentNode) a.parentNode.insertBefore(btn, a.nextSibling);
+        });
+    }
+
+    async function exhPushAllTorrentsOnPage() {
+        if (!EXH_HOST_RE.test(location.hostname)) {
+            showNotification('ExHentai 专用', '该操作仅在 exhentai.org / e-hentai.org 生效');
+            return;
+        }
+
+        let list = exhCollectPageTorrents();
+
+        if (!list.length) {
+            const galLinks = Array.from(new Set(
+                Array.prototype.slice.call(document.querySelectorAll('a[href*="gallerytorrents.php"]'))
+                    .map(a => a.href)
+            ));
+
+            if (!galLinks.length) {
+                showNotification('ExHentai', '当前页面没有种子链接，也没有画廊 torrent 入口');
+                return;
+            }
+            if (!confirm(`当前页面没有直接的 .torrent 链接，是否逐个抓取 ${galLinks.length} 个画廊的种子列表后一起推送？\n\n注意：会连续请求 ${galLinks.length} 次站点，间隔 0.6 秒；请求过密可能触发站点临时限流。`)) return;
+
+            const noticeId = 'exh-scan-' + Date.now();
+            for (let i = 0; i < galLinks.length; i++) {
+                showNotification('ExHentai', `正在抓取 ${i + 1}/${galLinks.length} 个画廊…`, noticeId);
+                try {
+                    const html = await exhFetchText(galLinks[i]);
+                    exhParseTorrents(html).forEach(t => {
+                        if (!list.some(x => x.url === t.url)) list.push(t);
+                    });
+                } catch (e) {
+                    console.warn('[ExHentai] 抓取失败', galLinks[i], e);
+                }
+                await exhSleep(600);
+            }
+        }
+
+        if (!list.length) {
+            showNotification('ExHentai', '没有抓到任何 torrent');
+            return;
+        }
+        if (!confirm(`共 ${list.length} 个 torrent，全部推送到 qBittorrent？`)) return;
+
+        const noticeId = 'exh-push-' + Date.now();
+        showNotification('qBittorrent', `正在推送 ${list.length} 个种子…`, noticeId);
+        const r = await qbAddTorrentFiles(list);
+        showNotification(
+            r.ok ? '批量推送完成' : '批量推送失败',
+            `成功 ${r.ok}/${list.length}` +
+            (r.failed.length ? `；失败 ${r.failed.length} 个：${r.failed.slice(0, 3).join('；')}` : ''),
+            noticeId
+        );
+    }
+
+    function handleExHentaiSite() {
+        try { exhHandleTorrentLinks(); } catch (e) { console.warn('[ExHentai] 注入种子按钮失败', e); }
+        try { exhHandleGalleryLinks(); } catch (e) { console.warn('[ExHentai] 注入画廊按钮失败', e); }
     }
 
     async function qbTestConnection() {
@@ -3439,6 +3813,7 @@ function handleOfflineResult(result) {
         addSiteTile('BT目录(BTMulu)', 'btmulu', 'site_btmulu');
         addSiteTile('ØMagnet(无极磁链)', 'cili_family', 'site_cili_family');
         addSiteTile('磁力帝', 'cilidi', 'site_cilidi');
+        addSiteTile('ExHentai(种子→qB)', 'exhentai', 'site_exhentai');
 
         secSites.appendChild(siteGrid);
 
