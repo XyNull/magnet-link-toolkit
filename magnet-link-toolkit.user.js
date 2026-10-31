@@ -957,28 +957,30 @@
         return '';
     }
 
-    // 推送按钮：带文字的胶囊样式，蓝底白字，暗色页面里足够醒目
+    // 推送按钮：贴着标题前面放的 inline 胶囊，与标题同一行，不额外撑高条目
+    // 用 span 而不是 button —— 它会插在条目标题的 <a> 内部，避免交互元素嵌套
     function exhMakeButton(label, tip, onClick) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
+        const btn = document.createElement('span');
         btn.className = 'exh-qb-btn';
+        btn.setAttribute('role', 'button');
+        btn.tabIndex = 0;
         btn.title = tip || label;
-        btn.innerHTML = ICONS.qb + `<span>${label}</span>`;
+        btn.innerHTML = ICONS.qb.replace('width="15" height="15"', 'width="12" height="12"') +
+            `<span>${label}</span>`;
         btn.style.cssText = [
-            'display:inline-flex', 'align-items:center', 'gap:5px',
-            'height:24px', 'padding:0 10px 0 6px', 'margin:6px 6px 0 0',
-            'border:1px solid #4b8ede', 'border-radius:12px',
+            'display:inline-flex', 'align-items:center', 'gap:3px',
+            'height:17px', 'padding:0 8px 0 5px', 'margin:1px 7px 1px 0',
+            'border:1px solid #4b8ede', 'border-radius:10px',
             'background:linear-gradient(#3b7bd2,#2f67af)', 'color:#fff',
-            'font:600 12px/1 "Segoe UI",system-ui,-apple-system,sans-serif',
+            'font:600 11px/1 "Segoe UI",system-ui,-apple-system,sans-serif',
             'cursor:pointer', 'white-space:nowrap', 'vertical-align:middle',
-            'box-shadow:0 1px 3px rgba(0,0,0,.35)',
-            'transition:filter .15s ease,transform .1s ease'
+            'user-select:none', 'box-shadow:0 1px 2px rgba(0,0,0,.3)',
+            'transition:filter .15s ease'
         ].join(';');
         btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(1.18)'; });
         btn.addEventListener('mouseleave', () => { btn.style.filter = ''; });
-        btn.addEventListener('mousedown', () => { btn.style.transform = 'scale(.97)'; });
-        btn.addEventListener('mouseup', () => { btn.style.transform = ''; });
-        btn.addEventListener('click', async (ev) => {
+
+        const run = async (ev) => {
             ev.preventDefault();
             ev.stopPropagation();
             if (btn.dataset.busy === '1') return;
@@ -995,35 +997,29 @@
                 btn.style.opacity = '';
                 btn.innerHTML = original;
             }
+        };
+        btn.addEventListener('click', run);
+        btn.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter' || ev.key === ' ') run(ev);
         });
         return btn;
     }
 
-    // 优先放到条目行的标题格（.gl3c / .glname）里，成为该条目的组成部分；
-    // 拿不到表格结构时退回锚点后面。
-    // 按钮统一包一层 block 容器，保证独占一行，不挤压原有的链接文字。
+    // 插到条目行的标题最前面，与标题同一行（不改变条目高度）；
+    // 没有标题容器时，直接插到锚点前面同样保持同行。
     function exhPlaceButton(anchorEl, btn) {
-        const wrap = document.createElement('div');
-        wrap.className = 'exh-qb-wrap';
-        wrap.style.cssText = 'display:block;margin:0;padding:0;line-height:normal;';
-        wrap.appendChild(btn);
-
         const row = anchorEl.closest('tr');
         if (row) {
-            const cell = row.querySelector('.gl3c') || row.querySelector('.glname');
-            if (cell) {
-                const link = cell.querySelector('a');
-                if (link && link.parentNode) link.parentNode.insertBefore(wrap, link.nextSibling);
-                else cell.appendChild(wrap);
-                return;
-            }
-            const cells = row.querySelectorAll('td');
-            if (cells.length) {
-                cells[cells.length - 1].appendChild(wrap);
+            const titleHost =
+                row.querySelector('.glink') ||
+                row.querySelector('.glname a') ||
+                row.querySelector('a[href*="/g/"]');
+            if (titleHost) {
+                titleHost.insertBefore(btn, titleHost.firstChild);
                 return;
             }
         }
-        if (anchorEl.parentNode) anchorEl.parentNode.insertBefore(wrap, anchorEl.nextSibling);
+        if (anchorEl.parentNode) anchorEl.parentNode.insertBefore(btn, anchorEl);
     }
 
     function exhHandleTorrentLinks() {
